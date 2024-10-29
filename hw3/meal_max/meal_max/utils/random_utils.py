@@ -6,6 +6,7 @@ from meal_max.utils.logger import configure_logger
 logger = logging.getLogger(__name__)
 configure_logger(logger)
 
+# FOR JERRY
 
 def get_random() -> float:
     url = "https://www.random.org/decimal-fractions/?num=1&dec=2&col=1&format=plain&rnd=new"

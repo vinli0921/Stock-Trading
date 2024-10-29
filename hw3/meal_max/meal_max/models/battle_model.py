@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 configure_logger(logger)
 
 
+# FOR JERRY
+
 class BattleModel:
 
     def __init__(self):

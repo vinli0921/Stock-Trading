@@ -10,6 +10,7 @@ from meal_max.utils.logger import configure_logger
 logger = logging.getLogger(__name__)
 configure_logger(logger)
 
+# FOR VINCENT
 
 @dataclass
 class Meal:
