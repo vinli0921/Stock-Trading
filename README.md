@@ -51,20 +51,20 @@ chmod +x setup_venv.sh
 source setup_venv.sh
 ```
 
-3. Create `.env` file:
+2. Create `.env` file:
 ```
 ALPHA_VANTAGE_API_KEY=your_api_key_here
 DB_PATH=./sql/stock_trading.db
 CREATE_DB=true
 ```
 
-4. Initialize the database:
+3. Initialize the database:
 ```bash
 chmod +x sql/create_db.sh
 ./sql/create_db.sh
 ```
 
-5. Run the application:
+4. Run the application:
 ```bash
 python3 -m app.py
 ```
