@@ -44,6 +44,14 @@ stock-trading/
 
 ## Setup Instructions
 
+### Alpha Vantage
+1. Get your free API key at:
+[API signup](https://www.alphavantage.co/)
+
+2. API documentation:
+[Alpha Vantage API Documentation](https://www.alphavantage.co/documentation/)
+Please look through the documentation thoroughly to understand how to use the requests
+
 ### Local Development
 1. Create a virtual environment and install dependencies:
 ```bash
