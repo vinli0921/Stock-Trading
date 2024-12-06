@@ -2,6 +2,7 @@ import os
 import requests
 import logging
 from datetime import datetime, timedelta
+from app.config import ALPHA_VANTAGE_API_KEY
 from app.utils.logger import configure_logger
 
 logger = logging.getLogger(__name__)
@@ -10,7 +11,7 @@ configure_logger(logger)
 class StockAPI:
     def __init__(self):
         """Initialize the StockAPI with Alpha Vantage credentials"""
-        self.api_key = os.getenv('ALPHA_VANTAGE_API_KEY')
+        self.api_key = ALPHA_VANTAGE_API_KEY
         if not self.api_key:
             raise ValueError("Alpha Vantage API key not found in environment variables")
         
