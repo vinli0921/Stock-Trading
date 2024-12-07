@@ -1,0 +1,1 @@
+# for future use such as token validation, session management, and authentication middleware (Auth0).
