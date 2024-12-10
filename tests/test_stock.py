@@ -1,7 +1,7 @@
 import pytest
 import requests
 
-from app.models.stock import StockAPI  # Adjust import path as needed
+from app.models.stock import StockAPI
 
 @pytest.fixture
 def stock_api():

@@ -18,14 +18,12 @@ def mock_db_connection(mocker):
     def mock_get_db_connection():
         yield mock_conn
 
-    # Patch them where they're used in portfolio.py
     mocker.patch("app.models.portfolio.get_db_connection", mock_get_db_connection)
 
     return mock_conn
 
 @pytest.fixture
 def mock_execute_query(mocker):
-    # Patch execute_query where PortfolioManager uses it
     mock_exec_query = mocker.patch("app.models.portfolio.execute_query")
     mock_exec_query.return_value = []
     return mock_exec_query
@@ -59,6 +57,12 @@ def sample_portfolio_data():
         {'symbol': 'GOOGL', 'quantity': 5, 'average_price': 150.0}
     ]
 
+######################################################
+#
+#    Portfolio Retrieval Function Test Cases
+#
+######################################################
+
 def test_get_portfolio_empty(portfolio_manager, mock_execute_query):
     mock_execute_query.return_value = []
     portfolio = portfolio_manager.get_portfolio(1)
@@ -83,6 +87,12 @@ def test_get_portfolio_api_failure(portfolio_manager, mock_execute_query, mock_s
     mock_stock_api.get_stock_price.side_effect = Exception("API Failure")
     with pytest.raises(Exception, match="API Failure"):
         portfolio_manager.get_portfolio(1)
+
+######################################################
+#
+#    Buy/Sell Stock Functions Test Cases
+#
+######################################################
 
 def test_buy_stock_success(portfolio_manager, mock_execute_query, mock_db_connection, mock_stock_api, sample_stock_data):
     mock_stock_api.get_stock_price.return_value = sample_stock_data
@@ -139,6 +149,12 @@ def test_sell_stock_invalid_quantity(portfolio_manager):
 
     with pytest.raises(ValueError, match="Quantity must be positive"):
         portfolio_manager.sell_stock(1, 'AAPL', -10)
+
+######################################################
+#
+#    Stock Info and Transaction Info Functions Test Cases
+#
+######################################################
 
 def test_get_transaction_history_empty(portfolio_manager, mock_execute_query):
     mock_execute_query.return_value = []
