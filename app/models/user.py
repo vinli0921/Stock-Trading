@@ -1,7 +1,7 @@
 import logging
 import sqlite3
 import bcrypt
-from typing import Optional, Dict, List
+from typing import Optional, Dict
 
 from app.utils.logger import configure_logger
 from app.utils.sql_utils import get_db_connection
@@ -14,6 +14,15 @@ class User:
     """User class to manage user authentication and portfolio interactions"""
     
     def __init__(self, id: int, username: str, salt: bytes, hashed_password: bytes):
+        """
+        Initialize a User instance.
+
+        Args:
+            id (int): The user's unique identifier.
+            username (str): The user's username.
+            salt (bytes): The salt used for hashing the password.
+            hashed_password (bytes): The hashed password.
+        """
         self.id = id
         self.username = username
         self._salt = salt
@@ -23,18 +32,18 @@ class User:
     @classmethod
     def login(cls, username: str, password: str) -> 'User':
         """
-        Authenticate user and return User instance if successful.
+        Authenticate the user and return a User instance if successful.
 
         Args:
-            username (str): The user's username
-            password (str): The user's password
+            username (str): The username of the user.
+            password (str): The password of the user.
 
         Returns:
-            User: User instance if login successful
+            User: The authenticated User instance.
 
         Raises:
-            ValueError: If username is invalid or password is incorrect
-            sqlite3.Error: For any database errors
+            ValueError: If the username does not exist or the password is incorrect.
+            sqlite3.Error: If a database error occurs.
         """
         try:
             with get_db_connection() as conn:
@@ -76,18 +85,18 @@ class User:
     @classmethod
     def create(cls, username: str, password: str) -> 'User':
         """
-        Create a new user account.
+        Create a new user account and return the User instance.
 
         Args:
-            username (str): The desired username
-            password (str): The user's password
+            username (str): The desired username.
+            password (str): The user's password.
 
         Returns:
-            User: New User instance
+            User: The newly created User instance.
 
         Raises:
-            ValueError: If username is invalid or already exists
-            sqlite3.Error: For any database errors
+            ValueError: If the username is invalid or already exists.
+            sqlite3.Error: If a database error occurs.
         """
         if not username or not password:
             raise ValueError("Username and password are required")
@@ -119,15 +128,15 @@ class User:
 
     def update_password(self, current_password: str, new_password: str) -> None:
         """
-        Change the user's password
-        
-        Args: 
-            current_password (str): The user's current password
-            new_password (str): The new password that will replace the current one
-            
-        Raises: 
-            ValueError: If the current_password is incorrect
-            sqlite3.Error: For any database errors
+        Update the user's password.
+
+        Args:
+            current_password (str): The user's current password.
+            new_password (str): The new password to set.
+
+        Raises:
+            ValueError: If the current password is incorrect.
+            sqlite3.Error: If a database error occurs.
         """
         if not bcrypt.checkpw(current_password.encode('utf-8'), self._hashed_password):
             raise ValueError("Current password is incorrect")
@@ -154,74 +163,75 @@ class User:
 
     # Portfolio methods
     def get_portfolio(self) -> Dict:
-        """
-        Get user's current portfolio with real-time values
-        
-        Returns: 
-            dict: Portfolio information including:
-                - holdings: list of stock holdings with current values
-                - total_value: current total portfolio value
+         """
+        Retrieve the user's portfolio with real-time stock values.
+
+        Returns:
+            Dict: A dictionary containing the user's portfolio details.
         """
         return self._portfolio_manager.get_portfolio(self.id)
 
     def buy_stock(self, symbol: str, quantity: int) -> Dict:
         """
-        Buy shares of a stock
-        
+        Buy shares of a stock for the user.
+
         Args:
-            symbol (str): The stock symbol to buy
-            quantity (int): Number of shares to buy
-            
+            symbol (str): The stock symbol to buy.
+            quantity (int): The number of shares to purchase.
+
         Returns:
-            dict: Transaction details
+            Dict: A dictionary with details of the transaction.
         """
         return self._portfolio_manager.buy_stock(self.id, symbol, quantity)
 
     def sell_stock(self, symbol: str, quantity: int) -> Dict:
         """
-        Sell shares of a stock
-        
-        Args: 
-            symbol (str): The stock symbol to sell
-            quantity (int): Number of shares to sell
-            
-        Returns: 
-            dict: Transaction details
+        Sell shares of a stock for the user.
+
+        Args:
+            symbol (str): The stock symbol to sell.
+            quantity (int): The number of shares to sell.
+
+        Returns:
+            Dict: A dictionary with details of the transaction.
         """
         return self._portfolio_manager.sell_stock(self.id, symbol, quantity)
 
-    def get_transaction_history(self) -> List[Dict]:
-        """
-        Get user's transaction history
+    def get_transaction_history(self) -> Dict:
+       """
+        Retrieve the user's transaction history.
 
         Returns:
-            list: List of transactions
+            Dict: A dictionary containing the transaction history.
         """
         return self._portfolio_manager.get_transaction_history(self.id)
 
     @staticmethod
     def get_stock_info(symbol: str) -> Dict:
         """
-        Get detailed information about a stock
+        Retrieve detailed information about a specific stock.
 
         Args:
-            symbol (str): The stock symbol to look up
+            symbol (str): The stock symbol.
 
         Returns:
-            dict: Combined current price, company info, and historical data
+            Dict: A dictionary containing stock information.
         """
         return PortfolioManager().get_stock_info(symbol)
 
     @staticmethod
     def get_by_id(user_id: int) -> Optional['User']:
-        """
-        Retrieve user by ID
+         """
+        Retrieve a User instance by their ID.
 
         Args:
-            user_id (int): The id of the user who is being looked up
+            user_id (int): The user's unique ID.
 
         Returns:
-            user: The user being searched for
+            Optional[User]: The User instance if found, otherwise None.
+
+        Raises:
+            sqlite3.Error: If a database error occurs.
         """
         try:
             with get_db_connection() as conn:
@@ -244,51 +254,4 @@ class User:
 
         except sqlite3.Error as e:
             logger.error("Database error while retrieving user: %s", str(e))
-            raise
-        
-    @staticmethod
-    def clear_all() -> None:
-        """
-        Remove all users from the database.
-        
-        Raises:
-            sqlite3.Error: For any database errors
-        """
-        try:
-            with get_db_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("DELETE FROM users")
-                conn.commit()
-                logger.info("Successfully cleared all users from database")
-
-        except sqlite3.Error as e:
-            logger.error("Database error while clearing users: %s", str(e))
-            raise
-        
-    @staticmethod
-    def clear_all_portfolios() -> None:
-        """
-        Remove all portfolio entries and transactions from the database.
-        
-        Raises:
-            sqlite3.Error: For any database errors
-        """
-        try:
-            with get_db_connection() as conn:
-                cursor = conn.cursor()
-                # Start transaction to ensure both tables are cleared atomically
-                conn.execute("BEGIN TRANSACTION")
-                try:
-                    # Clear both portfolio and transactions tables
-                    cursor.execute("DELETE FROM portfolio")
-                    cursor.execute("DELETE FROM transactions")
-                    conn.commit()
-                    logger.info("Successfully cleared all portfolios and transactions")
-                except Exception as e:
-                    conn.rollback()
-                    logger.error("Error during portfolio clear: %s", str(e))
-                    raise
-                    
-        except sqlite3.Error as e:
-            logger.error("Database error while clearing portfolios: %s", str(e))
             raise
