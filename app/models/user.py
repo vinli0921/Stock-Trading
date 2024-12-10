@@ -118,7 +118,17 @@ class User:
             raise
 
     def update_password(self, current_password: str, new_password: str) -> None:
-        """Change the user's password"""
+        """
+        Change the user's password
+        
+        Args: 
+            current_password (str): The user's current password
+            new_password (str): The new password that will replace the current one
+            
+        Raises: 
+            ValueError: If the current_password is incorrect
+            sqlite3.Error: For any database errors
+        """
         if not bcrypt.checkpw(current_password.encode('utf-8'), self._hashed_password):
             raise ValueError("Current password is incorrect")
 
@@ -144,29 +154,74 @@ class User:
 
     # Portfolio methods
     def get_portfolio(self) -> Dict:
-        """Get user's current portfolio with real-time values"""
+        """
+        Get user's current portfolio with real-time values
+        
+        Returns: 
+            dict: Portfolio information including:
+                - holdings: list of stock holdings with current values
+                - total_value: current total portfolio value
+        """
         return self._portfolio_manager.get_portfolio(self.id)
 
     def buy_stock(self, symbol: str, quantity: int) -> Dict:
-        """Buy shares of a stock"""
+        """
+        Buy shares of a stock
+        
+        Args:
+            symbol (str): The stock symbol to buy
+            quantity (int): Number of shares to buy
+            
+        Returns:
+            dict: Transaction details"""
         return self._portfolio_manager.buy_stock(self.id, symbol, quantity)
 
     def sell_stock(self, symbol: str, quantity: int) -> Dict:
-        """Sell shares of a stock"""
+        """
+        Sell shares of a stock
+        
+        Args: 
+            symbol (str): The stock symbol to sell
+            quantity (int): Number of shares to sell
+            
+        Returns: 
+            dict: Transaction details
+        """
         return self._portfolio_manager.sell_stock(self.id, symbol, quantity)
 
-    def get_transaction_history(self) -> Dict:
-        """Get user's transaction history"""
+    def get_transaction_history(self) -> List[Dict]:
+        """
+        Get user's transaction history
+
+        Returns:
+            list: List of transactions
+        """
         return self._portfolio_manager.get_transaction_history(self.id)
 
     @staticmethod
     def get_stock_info(symbol: str) -> Dict:
-        """Get detailed information about a stock"""
+        """
+        Get detailed information about a stock
+
+        Args:
+            symbol (str): The stock symbol to look up
+
+        Returns:
+            dict: Combined current price, company info, and historical data
+        """
         return PortfolioManager().get_stock_info(symbol)
 
     @staticmethod
     def get_by_id(user_id: int) -> Optional['User']:
-        """Retrieve user by ID"""
+        """
+        Retrieve user by ID
+
+        Args:
+            user_id (int): The id of the user who is being looked up
+
+        Returns:
+            user: The user being searched for
+        """
         try:
             with get_db_connection() as conn:
                 cursor = conn.cursor()
