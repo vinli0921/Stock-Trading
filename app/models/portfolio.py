@@ -1,7 +1,6 @@
 from datetime import datetime
 import logging
-from typing import List, Dict, Optional
-import sqlite3
+from typing import List, Dict
 
 from app.utils.logger import configure_logger
 from app.utils.sql_utils import get_db_connection, execute_query

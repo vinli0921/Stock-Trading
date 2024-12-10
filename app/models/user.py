@@ -173,7 +173,8 @@ class User:
             quantity (int): Number of shares to buy
             
         Returns:
-            dict: Transaction details"""
+            dict: Transaction details
+        """
         return self._portfolio_manager.buy_stock(self.id, symbol, quantity)
 
     def sell_stock(self, symbol: str, quantity: int) -> Dict:
