@@ -90,13 +90,55 @@ docker run -p 5000:5000 -v $(pwd)/db:/app/db stock-trading-app
 
 ## API Documentation
 
-### Authentication Routes (*Proposed*)
+## Base URL
+`http://localhost:5001/api`
 
-#### Create Account
-- **Route**: `/create-account`
-- **Method**: `POST`
-- **Purpose**: Register a new user
-- **Request Format**:
+## Health Check Routes
+
+### Check Service Health
+- **Route Name and Path**: `GET /health`
+- **Purpose**: Verify the application service is running and healthy
+- **Response Format**:
+```json
+{
+    "status": "healthy"
+}
+```
+- **Example**:
+```bash
+curl -X GET "http://localhost:5001/api/health"
+```
+```json
+{
+    "status": "healthy"
+}
+```
+
+### Check Database Health
+- **Route Name and Path**: `GET /db-check`
+- **Purpose**: Verify database connection is healthy
+- **Response Format**:
+```json
+{
+    "database_status": "healthy"
+}
+```
+- **Example**:
+```bash
+curl -X GET "http://localhost:5001/api/db-check"
+```
+```json
+{
+    "database_status": "healthy"
+}
+```
+
+## Authentication Routes
+
+### Create Account
+- **Route Name and Path**: `POST /users/create-account`
+- **Purpose**: Register a new user account
+- **Request Body Format**:
 ```json
 {
     "username": "string",
@@ -107,15 +149,26 @@ docker run -p 5000:5000 -v $(pwd)/db:/app/db stock-trading-app
 ```json
 {
     "message": "Account created successfully",
-    "user_id": integer
+    "user_id": "integer"
+}
+```
+- **Example**:
+```bash
+curl -X POST "http://localhost:5001/api/users/create-account" \
+     -H "Content-Type: application/json" \
+     -d '{"username": "testuser", "password": "password123"}'
+```
+```json
+{
+    "message": "Account created successfully",
+    "user_id": 1
 }
 ```
 
-#### Login
-- **Route**: `/login`
-- **Method**: `POST`
-- **Purpose**: Verify user credentials
-- **Request Format**:
+### Login
+- **Route Name and Path**: `POST /users/login`
+- **Purpose**: Authenticate user credentials
+- **Request Body Format**:
 ```json
 {
     "username": "string",
@@ -126,90 +179,367 @@ docker run -p 5000:5000 -v $(pwd)/db:/app/db stock-trading-app
 ```json
 {
     "message": "Login successful",
-    "user_id": integer
+    "user_id": "integer"
+}
+```
+- **Example**:
+```bash
+curl -X POST "http://localhost:5001/api/users/login" \
+     -H "Content-Type: application/json" \
+     -d '{"username": "testuser", "password": "password123"}'
+```
+```json
+{
+    "message": "Login successful",
+    "user_id": 1
 }
 ```
 
-### Portfolio Routes
-
-#### View Portfolio
-- **Route**: `/portfolio/<user_id>`
-- **Method**: `GET`
-- **Purpose**: Get user's current portfolio
+### Update Password
+- **Route Name and Path**: `POST /users/update-password`
+- **Purpose**: Change user's password
+- **Request Body Format**:
+```json
+{
+    "user_id": "integer",
+    "current_password": "string",
+    "new_password": "string"
+}
+```
 - **Response Format**:
 ```json
 {
-    "holdings": [
-        {
-            "symbol": "string",
-            "quantity": integer,
-            "current_price": float,
-            "total_value": float
-        }
-    ],
-    "total_portfolio_value": float
+    "message": "Password updated successfully"
+}
+```
+- **Example**:
+```bash
+curl -X POST "http://localhost:5001/api/users/update-password" \
+     -H "Content-Type: application/json" \
+     -d '{"user_id": 1, "current_password": "password123", "new_password": "newpassword123"}'
+```
+```json
+{
+    "message": "Password updated successfully"
 }
 ```
 
-#### Buy Stock
-- **Route**: `/portfolio/buy`
-- **Method**: `POST`
+### Clear Users
+- **Route Name and Path**: `DELETE /users/clear`
+- **Purpose**: Remove all users (development/testing)
+- **Response Format**:
+```json
+{
+    "status": "success",
+    "message": "All users cleared"
+}
+```
+- **Example**:
+```bash
+curl -X DELETE "http://localhost:5001/api/users/clear"
+```
+```json
+{
+    "status": "success",
+    "message": "All users cleared"
+}
+```
+
+## Portfolio Routes
+
+### Get Portfolio
+- **Route Name and Path**: `GET /portfolio/{user_id}`
+- **Purpose**: Retrieve user's current portfolio holdings
+- **Parameters**: 
+  - Path: `user_id` (integer)
+- **Response Format**:
+```json
+{
+    "status": "success",
+    "portfolio": {
+        // Portfolio details specific to implementation
+    }
+}
+```
+- **Example**:
+```bash
+curl -X GET "http://localhost:5001/api/portfolio/1"
+```
+```json
+{
+    "status": "success",
+    "portfolio": {
+        "holdings": [
+            {
+                "symbol": "AAPL",
+                "quantity": 10,
+                "current_price": 150.50,
+                "total_value": 1505.00
+            }
+        ]
+    }
+}
+```
+
+### Buy Stock
+- **Route Name and Path**: `POST /portfolio/buy`
 - **Purpose**: Purchase shares of a stock
-- **Request Format**:
+- **Request Body Format**:
 ```json
 {
-    "user_id": integer,
+    "user_id": "integer",
     "symbol": "string",
-    "quantity": integer
+    "quantity": "integer"
 }
 ```
 - **Response Format**:
 ```json
 {
-    "message": "Purchase successful",
-    "transaction_id": integer,
-    "price": float,
-    "total_cost": float
+    "status": "success",
+    "transaction": {
+        // Transaction details
+    }
+}
+```
+- **Example**:
+```bash
+curl -X POST "http://localhost:5001/api/portfolio/buy" \
+     -H "Content-Type: application/json" \
+     -d '{"user_id": 1, "symbol": "AAPL", "quantity": 10}'
+```
+```json
+{
+    "status": "success",
+    "transaction": {
+        "symbol": "AAPL",
+        "quantity": 10,
+        "price": 150.50,
+        "total_cost": 1505.00,
+        "timestamp": "2024-12-10T10:30:00Z"
+    }
 }
 ```
 
-#### Sell Stock
-- **Route**: `/portfolio/sell`
-- **Method**: `POST`
-- **Purpose**: Sell shares of a stock
-- **Request Format**:
+### Sell Stock
+- **Route Name and Path**: `POST /portfolio/sell`
+- **Purpose**: Sell shares from portfolio
+- **Request Body Format**:
 ```json
 {
-    "user_id": integer,
+    "user_id": "integer",
     "symbol": "string",
-    "quantity": integer
+    "quantity": "integer"
 }
 ```
 - **Response Format**:
 ```json
 {
-    "message": "Sale successful",
-    "transaction_id": integer,
-    "price": float,
-    "total_proceeds": float
+    "status": "success",
+    "transaction": {
+        // Transaction details
+    }
+}
+```
+- **Example**:
+```bash
+curl -X POST "http://localhost:5001/api/portfolio/sell" \
+     -H "Content-Type: application/json" \
+     -d '{"user_id": 1, "symbol": "AAPL", "quantity": 5}'
+```
+```json
+{
+    "status": "success",
+    "transaction": {
+        "symbol": "AAPL",
+        "quantity": 5,
+        "price": 151.00,
+        "total_proceeds": 755.00,
+        "timestamp": "2024-12-10T11:30:00Z"
+    }
 }
 ```
 
-### Stock Information Routes
-
-#### Look Up Stock
-- **Route**: `/stock/<symbol>`
-- **Method**: `GET`
-- **Purpose**: Get detailed stock information
+### Get Transaction History
+- **Route Name and Path**: `GET /portfolio/history/{user_id}`
+- **Purpose**: Retrieve user's trading history
+- **Parameters**:
+  - Path: `user_id` (integer)
 - **Response Format**:
 ```json
 {
-    "symbol": "string",
-    "company_name": "string",
-    "current_price": float,
-    "day_high": float,
-    "day_low": float,
-    "volume": integer
+    "status": "success",
+    "history": [
+        // Array of transactions
+    ]
+}
+```
+- **Example**:
+```bash
+curl -X GET "http://localhost:5001/api/portfolio/history/1"
+```
+```json
+{
+    "status": "success",
+    "history": [
+        {
+            "type": "BUY",
+            "symbol": "AAPL",
+            "quantity": 10,
+            "price": 150.50,
+            "timestamp": "2024-12-10T10:30:00Z"
+        },
+        {
+            "type": "SELL",
+            "symbol": "AAPL",
+            "quantity": 5,
+            "price": 151.00,
+            "timestamp": "2024-12-10T11:30:00Z"
+        }
+    ]
+}
+```
+
+### Clear Portfolios
+- **Route Name and Path**: `DELETE /portfolio/clear`
+- **Purpose**: Remove all portfolios (development/testing)
+- **Response Format**:
+```json
+{
+    "status": "success",
+    "message": "All portfolios cleared"
+}
+```
+- **Example**:
+```bash
+curl -X DELETE "http://localhost:5001/api/portfolio/clear"
+```
+```json
+{
+    "status": "success",
+    "message": "All portfolios cleared"
+}
+```
+
+## Stock Information Routes
+
+### Validate Stock Symbol
+- **Route Name and Path**: `GET /stock/{symbol}`
+- **Purpose**: Verify if a stock symbol exists
+- **Parameters**:
+  - Path: `symbol` (string)
+- **Response Format**:
+```json
+{
+    "status": "success",
+    "valid": "boolean"
+}
+```
+- **Example**:
+```bash
+curl -X GET "http://localhost:5001/api/stock/AAPL"
+```
+```json
+{
+    "status": "success",
+    "valid": true
+}
+```
+
+### Get Stock Price
+- **Route Name and Path**: `GET /stock/price/{symbol}`
+- **Purpose**: Get current stock price information
+- **Parameters**:
+  - Path: `symbol` (string)
+- **Response Format**:
+```json
+{
+    "status": "success",
+    "price_info": {
+        // Price information
+    }
+}
+```
+- **Example**:
+```bash
+curl -X GET "http://localhost:5001/api/stock/price/AAPL"
+```
+```json
+{
+    "status": "success",
+    "price_info": {
+        "symbol": "AAPL",
+        "current_price": 150.50,
+        "change": 2.30,
+        "change_percent": 1.55,
+        "timestamp": "2024-12-10T12:00:00Z"
+    }
+}
+```
+
+### Get Stock History
+- **Route Name and Path**: `GET /stock/history/{symbol}`
+- **Purpose**: Retrieve historical price data
+- **Parameters**:
+  - Path: `symbol` (string)
+  - Query: `outputsize` (string, "compact" or "full")
+- **Response Format**:
+```json
+{
+    "status": "success",
+    "history": {
+        // Historical data
+    }
+}
+```
+- **Example**:
+```bash
+curl -X GET "http://localhost:5001/api/stock/history/AAPL?outputsize=compact"
+```
+```json
+{
+    "status": "success",
+    "history": {
+        "2024-12-10": {
+            "open": 149.00,
+            "high": 151.20,
+            "low": 148.80,
+            "close": 150.50,
+            "volume": 1234567
+        }
+        // Additional historical data entries...
+    }
+}
+```
+
+### Get Company Information
+- **Route Name and Path**: `GET /stock/company/{symbol}`
+- **Purpose**: Get detailed company information
+- **Parameters**:
+  - Path: `symbol` (string)
+- **Response Format**:
+```json
+{
+    "status": "success",
+    "company_info": {
+        // Company details
+    }
+}
+```
+- **Example**:
+```bash
+curl -X GET "http://localhost:5001/api/stock/company/AAPL"
+```
+```json
+{
+    "status": "success",
+    "company_info": {
+        "name": "Apple Inc.",
+        "description": "Technology company that designs and manufactures smartphones, computers, tablets, and wearables.",
+        "sector": "Technology",
+        "industry": "Consumer Electronics",
+        "market_cap": "2.5T",
+        "exchange": "NASDAQ"
+    }
 }
 ```
 
@@ -231,7 +561,7 @@ Error responses include a message explaining the error:
 ## Testing
 Run the test suite:
 ```bash
-python3 -m pytest
+python3 -m pytest tests/
 ```
 
 ## Contributing
