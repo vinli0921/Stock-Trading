@@ -8,9 +8,9 @@ from app.utils.sql_utils import check_database_connection, check_tables_exist
 app = Flask(__name__)
 
 # Register blueprints
-app.register_blueprint(auth_bp)
-app.register_blueprint(portfolio_bp)
-app.register_blueprint(stock_bp)
+app.register_blueprint(auth_bp, url_prefix="/api")
+app.register_blueprint(portfolio_bp, url_prefix="/api")
+app.register_blueprint(stock_bp, url_prefix="/api")
 
 # Health check routes
 @app.route('/api/health')

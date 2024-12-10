@@ -3,7 +3,7 @@ from app.models.user import User
 
 auth_bp = Blueprint('auth', __name__)
 
-@auth_bp.route('/api/create-account', methods=['POST'])
+@auth_bp.route('/users/create-account', methods=['POST'])
 def create_account() -> Response:
     """Create a new user account"""
     try:
@@ -27,7 +27,7 @@ def create_account() -> Response:
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-@auth_bp.route('/api/login', methods=['POST'])
+@auth_bp.route('/users/login', methods=['POST'])
 def login() -> Response:
     """Login user"""
     try:
@@ -51,7 +51,7 @@ def login() -> Response:
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-@auth_bp.route('/api/update-password', methods=['POST'])
+@auth_bp.route('/users/update-password', methods=['POST'])
 def update_password() -> Response:
     """Update user password"""
     try:
@@ -78,5 +78,17 @@ def update_password() -> Response:
 
     except ValueError as e:
         return make_response(jsonify({'error': str(e)}), 400)
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
+    
+@auth_bp.route('/users/clear', methods=['DELETE'])
+def clear_users() -> Response:
+    """Clear all users from the database"""
+    try:
+        User.clear_all()
+        return make_response(jsonify({
+            'status': 'success',
+            'message': 'All users cleared'
+        }), 200)
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)

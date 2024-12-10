@@ -4,21 +4,19 @@ from app.models.stock import StockAPI
 stock_bp = Blueprint('stock', __name__)
 stock_api = StockAPI()
 
-@stock_bp.route('/api/stock/<symbol>', methods=['GET'])
-def get_stock_info(symbol: str) -> Response:
-    """Get detailed stock information"""
+@stock_bp.route('/stock/<symbol>', methods=['GET'])
+def validate_stock(symbol: str) -> Response:
+    """Validate if a stock symbol exists"""
     try:
-        info = stock_api.get_stock_info(symbol)
+        is_valid = stock_api.validate_symbol(symbol)
         return make_response(jsonify({
             'status': 'success',
-            'stock_info': info
+            'valid': is_valid
         }), 200)
-    except ValueError as e:
-        return make_response(jsonify({'error': str(e)}), 404)
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-@stock_bp.route('/api/stock/price/<symbol>', methods=['GET'])
+@stock_bp.route('/stock/price/<symbol>', methods=['GET'])
 def get_stock_price(symbol: str) -> Response:
     """Get current stock price"""
     try:
@@ -32,7 +30,7 @@ def get_stock_price(symbol: str) -> Response:
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-@stock_bp.route('/api/stock/history/<symbol>', methods=['GET'])
+@stock_bp.route('/stock/history/<symbol>', methods=['GET'])
 def get_stock_history(symbol: str) -> Response:
     """Get stock price history"""
     try:
@@ -52,7 +50,7 @@ def get_stock_history(symbol: str) -> Response:
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-@stock_bp.route('/api/stock/company/<symbol>', methods=['GET'])
+@stock_bp.route('/stock/company/<symbol>', methods=['GET'])
 def get_company_info(symbol: str) -> Response:
     """Get detailed company information"""
     try:

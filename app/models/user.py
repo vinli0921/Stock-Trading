@@ -1,7 +1,7 @@
 import logging
 import sqlite3
 import bcrypt
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from app.utils.logger import configure_logger
 from app.utils.sql_utils import get_db_connection
@@ -243,4 +243,51 @@ class User:
 
         except sqlite3.Error as e:
             logger.error("Database error while retrieving user: %s", str(e))
+            raise
+        
+    @staticmethod
+    def clear_all() -> None:
+        """
+        Remove all users from the database.
+        
+        Raises:
+            sqlite3.Error: For any database errors
+        """
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM users")
+                conn.commit()
+                logger.info("Successfully cleared all users from database")
+
+        except sqlite3.Error as e:
+            logger.error("Database error while clearing users: %s", str(e))
+            raise
+        
+    @staticmethod
+    def clear_all_portfolios() -> None:
+        """
+        Remove all portfolio entries and transactions from the database.
+        
+        Raises:
+            sqlite3.Error: For any database errors
+        """
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                # Start transaction to ensure both tables are cleared atomically
+                conn.execute("BEGIN TRANSACTION")
+                try:
+                    # Clear both portfolio and transactions tables
+                    cursor.execute("DELETE FROM portfolio")
+                    cursor.execute("DELETE FROM transactions")
+                    conn.commit()
+                    logger.info("Successfully cleared all portfolios and transactions")
+                except Exception as e:
+                    conn.rollback()
+                    logger.error("Error during portfolio clear: %s", str(e))
+                    raise
+                    
+        except sqlite3.Error as e:
+            logger.error("Database error while clearing portfolios: %s", str(e))
             raise

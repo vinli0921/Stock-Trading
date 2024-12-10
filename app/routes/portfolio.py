@@ -3,7 +3,7 @@ from app.models.user import User
 
 portfolio_bp = Blueprint('portfolio', __name__)
 
-@portfolio_bp.route('/api/portfolio/<int:user_id>', methods=['GET'])
+@portfolio_bp.route('/portfolio/<int:user_id>', methods=['GET'])
 def get_portfolio(user_id: int) -> Response:
     """Get user's portfolio"""
     try:
@@ -19,7 +19,7 @@ def get_portfolio(user_id: int) -> Response:
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-@portfolio_bp.route('/api/portfolio/buy', methods=['POST'])
+@portfolio_bp.route('/portfolio/buy', methods=['POST'])
 def buy_stock() -> Response:
     """Buy stock for user's portfolio"""
     try:
@@ -47,7 +47,7 @@ def buy_stock() -> Response:
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-@portfolio_bp.route('/api/portfolio/sell', methods=['POST'])
+@portfolio_bp.route('/portfolio/sell', methods=['POST'])
 def sell_stock() -> Response:
     """Sell stock from user's portfolio"""
     try:
@@ -75,7 +75,7 @@ def sell_stock() -> Response:
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
 
-@portfolio_bp.route('/api/portfolio/history/<int:user_id>', methods=['GET'])
+@portfolio_bp.route('/portfolio/history/<int:user_id>', methods=['GET'])
 def get_transaction_history(user_id: int) -> Response:
     """Get user's transaction history"""
     try:
@@ -87,6 +87,18 @@ def get_transaction_history(user_id: int) -> Response:
         return make_response(jsonify({
             'status': 'success',
             'history': history
+        }), 200)
+    except Exception as e:
+        return make_response(jsonify({'error': str(e)}), 500)
+    
+@portfolio_bp.route('/portfolio/clear', methods=['DELETE'])
+def clear_portfolios() -> Response:
+    """Clear all portfolios from the database"""
+    try:
+        User.clear_all_portfolios()
+        return make_response(jsonify({
+            'status': 'success',
+            'message': 'All portfolios cleared'
         }), 200)
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
