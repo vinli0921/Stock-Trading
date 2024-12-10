@@ -14,4 +14,4 @@ else
 fi
 
 # Start the Python application
-exec python3 app.py
+exec python3 run.py
