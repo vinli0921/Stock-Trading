@@ -14,7 +14,6 @@ A Flask-based web application that provides a backend API for managing stock por
 - Python 3.11
 - Flask (Web Framework)
 - SQLite (Database)
-- SQLAlchemy (ORM)
 - Alpha Vantage API (Stock Data)
 - Docker (Containerization)
 
@@ -38,6 +37,8 @@ stock-trading/
 ├── entrypoint.sh                   # Shell script to create application entry point
 ├── README.md                       # Project documentation
 ├── requirements.txt                # Python dependencies
+├── run_docker.sh                   # Shell script to create and run docker image
+├── run.py                          # Running flask app
 ├── setup_venv.sh                   # Shell script to create and start virtual env
 └── smoketest.sh                    # Smoke test script
 ```
@@ -62,7 +63,7 @@ source setup_venv.sh
 2. Create `.env` file:
 ```
 ALPHA_VANTAGE_API_KEY=your_api_key_here
-DB_PATH=./sql/stock_trading.db
+DB_PATH=./db/stock_trading.db
 CREATE_DB=true
 ```
 
@@ -74,18 +75,25 @@ chmod +x sql/create_db.sh
 
 4. Run the application:
 ```bash
-python3 -m app.py
+python3 -m run.py
 ```
 
 ### Docker Setup
-1. Build the Docker image:
+1. Build the Docker image and run the container:
 ```bash
-docker build -t stock-trading-app .
+chmod +x run_docker.sh
+./run_docker.sh
 ```
 
-2. Run the container:
+### Testing
+Run the test suite:
 ```bash
-docker run -p 5000:5000 -v $(pwd)/db:/app/db stock-trading-app
+python3 -m pytest tests/
+```
+For smoke tests, after you build and run the docker image:
+```bash
+chmod +x smoketest.sh
+./smoketest.sh
 ```
 
 ## API Documentation
@@ -556,12 +564,6 @@ Error responses include a message explaining the error:
 {
     "error": "Error message description"
 }
-```
-
-## Testing
-Run the test suite:
-```bash
-python3 -m pytest tests/
 ```
 
 ## Contributing
