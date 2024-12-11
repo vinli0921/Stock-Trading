@@ -5,7 +5,11 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/users/create-account', methods=['POST'])
 def create_account() -> Response:
-    """Create a new user account"""
+    """
+    Create a new user account.
+    Returns:
+        Response: A JSON response with success or error details.
+    """
     try:
         data = request.get_json()
         username = data.get('username')
@@ -29,7 +33,11 @@ def create_account() -> Response:
 
 @auth_bp.route('/users/login', methods=['POST'])
 def login() -> Response:
-    """Login user"""
+    """
+    Authenticate and log in a user.
+    Returns:
+        Response: A JSON response indicating success or failure.
+    """
     try:
         data = request.get_json()
         username = data.get('username')
@@ -53,7 +61,11 @@ def login() -> Response:
 
 @auth_bp.route('/users/update-password', methods=['POST'])
 def update_password() -> Response:
-    """Update user password"""
+     """
+    Update a user's password.
+    Returns:
+        Response: A JSON response indicating success or failure.
+    """
     try:
         data = request.get_json()
         user_id = data.get('user_id')
@@ -83,7 +95,11 @@ def update_password() -> Response:
     
 @auth_bp.route('/users/clear', methods=['DELETE'])
 def clear_users() -> Response:
-    """Clear all users from the database"""
+    """
+    Delete all user accounts from the database.
+    Returns:
+        Response: A JSON response indicating the operation status.
+    """
     try:
         User.clear_all()
         return make_response(jsonify({
