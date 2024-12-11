@@ -9,7 +9,12 @@ configure_logger(logger)
 
 class StockAPI:
     def __init__(self):
-        """Initialize the StockAPI with Alpha Vantage credentials"""
+        """
+        Initialize the StockAPI with Alpha Vantage credentials and setup.
+        
+        Raises:
+            ValueError: If the Alpha Vantage API key is not configured.
+        """
         self.api_key = ALPHA_VANTAGE_API_KEY
         if not self.api_key:
             raise ValueError("Alpha Vantage API key not found in environment variables")
